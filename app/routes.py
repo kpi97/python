@@ -1,48 +1,42 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-# http://bit.ly/2PPcLvM
 
-
-from flask import request, redirect, url_for
+from flask import request
 import html as utils
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Response
+from flask import render_template, redirect, url_for
 from app import app, send, pdata
 from flask_cors import CORS
-from flask import render_template
 
 CORS(app)
 
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', send_url="/send")
+    return render_template('index.html', send_email='/send')
 
 
 def send_msg_from_site(name, email, message):
-    sender = send.Sender()
-
-    html_text="""<html>
-  <body>
-      <h1>От: """ + name + """</h1>
-      <h2>Email:  """ + email + """</h2>
-      <h3>Сообщение: </h3>
-      <div> """ + message + """</div>
-  </body>
-</html>"""
+	sender = send.Sender()
+	html_text="""<html>
+	<body>
+		<h1>From: """ + name + """ </h1>
+		<h2>To: """ + email + """ </h2>
+		<h3>Message: """ + message + """ </h3>
+	</body>
+	</html>"""
+	sender.send_via_smtp(email_from_smtp=pdata.from_smtp,
+                           key=pdata.from_key,
+                           email_from=pdata.from_email,
+                           email_to=pdata.to_email,
+                           subject="message from flask",
+                           html_text=html_text,
+                           plain_text=name+ " " + email + " " + message,
+                           cid_images=[],
+                           attachments=[])
     
-    sender.send_via_smtp(
-            email_from_smtp = pdata.from_smtp, 
-            key = pdata.from_key,
-            email_from = pdata.from_email, 
-            email_to = pdata.to_email,
-            subject="письмо из flask",
-            html_text=html_text,
-            plain_text=name + " " + email + " " + message, 
-            cid_images=[], 
-            attachments=[])
-
 
 
 limiter = Limiter(
@@ -72,11 +66,10 @@ def send_email():
 
     if len(name) == 0 or len(email) == 0 or len(message) == 0:
         return "Ошибка. Поля формы не заполнены."
-    
-    send_msg_from_site(name, email, message)
 
+    send_msg_from_site(name, email, message)
     return redirect(url_for('email_response'))
 
 @app.route('/response')
 def email_response():
-    return render_template('response.html', company="FooBar")
+	return render_template('response.html', company="FooBar")

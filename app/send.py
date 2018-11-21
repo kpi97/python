@@ -5,7 +5,6 @@ import os
 import yaml
 import smtplib
 import urllib
-import socks
 from email.mime.text import MIMEText
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
@@ -15,11 +14,7 @@ from email.utils import COMMASPACE, formatdate
 from email import charset
 from email.utils import formataddr
 
-import app.pdata as pdata
-
-import smtplib
-import socket
-
+import app.pdata
 
 class Sender:
     def send_via_smtp(self, email_from_smtp, key, email_from, email_to, subject, html_text, plain_text, cid_images, attachments):
@@ -45,7 +40,7 @@ class Sender:
         msgRoot['Date'] = formatdate(localtime=True)
         msgRoot['Subject'] = Header(subject, 'utf-8')
         msgRoot['Organization'] = Header('ООО "FooBar"', 'utf-8')
-        # msgRoot['User-Agent'] = "Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101\n Thunderbird/52.5.2"
+        msgRoot['User-Agent'] = "Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101\n Thunderbird/52.5.2"
         msgRoot['Content-Language'] = 'ru'
 
         # Инкапсулировать plain и HTML версии тела сообщения в части 'alternative',
@@ -60,7 +55,7 @@ class Sender:
         ch.body_encoding = '8bit'
 
         msgHtml = MIMEText(plain_text, 'plain', 'utf-8')
-        msgAlternative.attach(msgHtml)
+        msgAlternative.attach(msgHtml) 
         msgHtml = MIMEText(html_text, 'html', 'utf-8')
         msgAlternative.attach(msgHtml)
 
@@ -84,20 +79,11 @@ class Sender:
         s = msgRoot.as_string()
 
         if 1:
-            with open("eml.eml", "w") as f:
-                f.write(s)
-
-            socks.setdefaultproxy(
-                     socks.PROXY_TYPE_SOCKS4, 
-                     pdata.proxy_ip, pdata.proxy_port)
-
-            socks.wrapmodule(smtplib)
-
-            server = smtplib.SMTP_SSL(email_from_smtp, 465)
-            # server.ehlo(email_from)
+            server = smtplib.SMTP_SSL(email_from_smtp)
+            #server.ehlo(email_from)
             server.login(email_from, key)
             server.sendmail(email_from, email_to, s)
-            # server.sendmail(email_from, email_from, s)
+            server.sendmail(email_from, email_from, s)
             server.quit()
 
 
@@ -142,12 +128,9 @@ class Sender:
                            attachments=attachments)
 
 
-def test():
-    print(123)
-
 
 if __name__ == '__main__':
-    test()
+    pass
 
 
 

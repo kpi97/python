@@ -1,17 +1,6 @@
-#!/usr/bin/env python3
-# coding=utf8
-
-proxy_ip = "109.74.136.78"
+from_smtp="smtp.gmail.com"
+from_email="cheerful.enot@gmail.com"
+from_key="8543667gifale8543667"
+to_email="36furious@gmail.com"
+proxy_ip="89.20.131.50"
 proxy_port = 4145
-
-from_smtp = "smtp.mail.ru"
-# from_smtp = "217.69.139.160"
-
-# from_smtp = "smtp.yandex.ru"
-
-# from_email = "vsu-python1@yandex.ru"
-from_email = "vsu-python1@mail.ru"
-from_key = "123456A"
-# to_email = "vsu-python1@mail.ru"
-to_email = "vsu-python1@yandex.ru"
-
