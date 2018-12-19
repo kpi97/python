@@ -15,8 +15,6 @@ from email import charset
 from email.utils import formataddr
 
 import app.pdata
-import socket
-import socks
 
 class Sender:
     def send_via_smtp(self, email_from_smtp, key, email_from, email_to, subject, html_text, plain_text, cid_images, attachments):
@@ -57,13 +55,13 @@ class Sender:
         ch.body_encoding = '8bit'
 
         msgHtml = MIMEText(plain_text, 'plain', 'utf-8')
-        msgAlternative.attach(msgHtml) 
+        msgAlternative.attach(msgHtml)
         msgHtml = MIMEText(html_text, 'html', 'utf-8')
         msgAlternative.attach(msgHtml)
 
         for cid, filename in cid_images:
             with open(filename, "rb") as f:
-                msgImage = MIMEImage(f.read(), _subtype=subtype)
+                msgImage = MIMEImage(f.read())
                 msgImage.add_header('Content-ID', '<' + cid + '>')
                 msgImage.add_header('Content-Disposition', 'inline; filename="' + cid + '"')
                 msgRoot.attach(msgImage)
@@ -79,16 +77,13 @@ class Sender:
             msgRoot.attach(part)
 
         s = msgRoot.as_string()
+        #with open("/home/artem/tmp/tst.eml", "w") as f:
+        #    f.write(s)
 
         if 1:
-            socks.setdefaultproxy(
-                socks.PROXY_TYPE_SOCKS4,
-                app.pdata.proxy_ip, app.pdata.proxy_port)
-				
-            socks.wrapmodule(smtplib)
-			
-            server = smtplib.SMTP_SSL(email_from_smtp, 465)
-            #server.ehlo(email_from)
+            print(email_from_smtp)
+            server = smtplib.SMTP_SSL(email_from_smtp)
+            server.ehlo(email_from)
             server.login(email_from, key)
             server.sendmail(email_from, email_to, s)
             server.sendmail(email_from, email_from, s)
